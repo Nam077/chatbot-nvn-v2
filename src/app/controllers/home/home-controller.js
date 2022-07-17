@@ -75,27 +75,36 @@ export class HomeController {
     // Sends response messages via the Send API
     callSendAPI(sender_psid, response) {
         // Construct the message body
-        let request_body = {
-            recipient: {
-                id: sender_psid,
+        return new Promise(
+            async (resolve, reject) => {
+                let request_body = {
+                    recipient: {
+                        id: sender_psid,
+                    },
+                    message: response,
+                };
+                // Send the HTTP request to the Messenger Platform
+                request(
+                    {
+                        uri: 'https://graph.facebook.com/v6.0/me/messages',
+                        qs: { access_token: PAGE_ACCESS_TOKEN },
+                        method: 'POST',
+                        json: request_body,
+                    },
+                    (err, res, body) => {
+                        if (!err) {
+                            console.log('message sent!');
+                        } else {
+                            console.error('Unable to send message:' + err);
+                        }
+                    },
+                );
+                resolve('Gửi tin nhắn thành công');
+                console.log('Gửi tin nhắn thành công');
             },
-            message: response,
-        };
-
-        // Send the HTTP request to the Messenger Platform
-        request(
-            {
-                uri: 'https://graph.facebook.com/v6.0/me/messages',
-                qs: { access_token: PAGE_ACCESS_TOKEN },
-                method: 'POST',
-                json: request_body,
-            },
-            (err, res, body) => {
-                if (!err) {
-                    console.log('message sent!');
-                } else {
-                    console.error('Unable to send message:' + err);
-                }
+            (err) => {
+                console.log(err);
+                reject(err);
             },
         );
     }
